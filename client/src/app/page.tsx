@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { clipTweet } from "./actions/clip";
 
 export default function Home() {
   const [tweetUrl, setTweetUrl] = useState("");
@@ -53,15 +54,13 @@ export default function Home() {
     setDownloadUrl("");
 
     try {
-      const response = await axios.post("/api/clip", {
-        tweetUrl: tweetUrl.trim(),
-        start: start.trim(),
-        end: end.trim(),
-      });
+      const response = await clipTweet(tweetUrl, start, end);
 
-      const { downloadUrl } = response.data;
+      console.log(response);
+
       // Ensure the download URL is properly formatted as an absolute URL
-      const formattedUrl = downloadUrl.startsWith("http") ? downloadUrl : `http://${downloadUrl}`;
+      const formattedUrl = `http://${response.downloadUrl}`;
+
       setDownloadUrl(formattedUrl);
 
       setTweetUrl("");
