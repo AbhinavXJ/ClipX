@@ -78,6 +78,40 @@ export default function Home() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!downloadUrl) return;
+
+    try {
+      const response = await fetch("/api/download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ downloadUrl }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || "Download failed");
+        return;
+      }
+
+      // Create a blob from the response and trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "clipx-video.mp4";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download error:", error);
+      setError("Failed to download video");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex flex-col items-center justify-center px-4">
       <div className="flex flex-col items-center mb-12">
@@ -158,13 +192,12 @@ export default function Home() {
 
           {downloadUrl && (
             <div className="mt-6 text-center">
-              <a
-                href={downloadUrl}
-                download
+              <button
+                onClick={handleDownload}
                 className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md"
               >
                 🎬 Download Your Clip
-              </a>
+              </button>
             </div>
           )}
         </div>
