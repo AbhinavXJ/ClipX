@@ -63,6 +63,9 @@ export default function Home() {
 
       setDownloadUrl(formattedUrl);
 
+      // Automatically trigger download when ready
+      await handleDownload(formattedUrl);
+
       setTweetUrl("");
       setStart("");
       setEnd("");
@@ -78,8 +81,9 @@ export default function Home() {
     }
   };
 
-  const handleDownload = async () => {
-    if (!downloadUrl) return;
+  const handleDownload = async (url?: string) => {
+    const downloadUrlToUse = url || downloadUrl;
+    if (!downloadUrlToUse) return;
 
     try {
       const response = await fetch("/api/download", {
@@ -87,7 +91,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ downloadUrl }),
+        body: JSON.stringify({ downloadUrl: downloadUrlToUse }),
       });
 
       if (!response.ok) {
@@ -187,17 +191,6 @@ export default function Home() {
           {error && (
             <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-xl">
               <p className="text-red-400 text-sm">{error}</p>
-            </div>
-          )}
-
-          {downloadUrl && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={handleDownload}
-                className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md"
-              >
-                🎬 Download Your Clip
-              </button>
             </div>
           )}
         </div>
